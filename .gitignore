@@ -1,0 +1,10 @@
+# project
+node_modules
+data
+.env
+
+# ide
+.vscode
+
+# macos
+.DS_Store
