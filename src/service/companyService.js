@@ -11,6 +11,30 @@ async function getCompanies(params) {
     }
 }
 
+async function getCompany(id) {
+    try {
+        const res = await Company.findOne({ _id: id })
+        return res
+    } catch (error) {
+        console.error(error.message)
+        throw error
+    }
+}
+
+async function createCompanies(companies) {
+    for (const company of companies) {
+        try {
+            const comp = new Company(company)
+            const res = await comp.save()
+            console.log(`    inserting --> ${res.title} ${res.siren}`)
+        } catch (error) {
+            console.error(error.message)
+        }        
+    }
+}
+
 module.exports = {
-    getCompanies
+    getCompanies,
+    getCompany,
+    createCompanies
 }
