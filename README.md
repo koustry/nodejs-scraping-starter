@@ -35,6 +35,8 @@ Be sure to have a mongoDB deamon running or just start MongoDB Docker Service :
 docker-compose up database -d
 ```
 
+Change in `.env` the following var to `MONGO_HOST=localhost`.
+
 Start server with `npm`:
 
 ```bash
