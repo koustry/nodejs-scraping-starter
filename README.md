@@ -6,10 +6,6 @@ This project is a simple scraper of ["Portail de la Publicité Légale des Entre
 
 *À partir des données de la base Sirene, PPLE propose une sélection d’entreprises en correspondance avec les bases de données partenaires d’Actulegales.fr, de Bodacc.fr et d’Infogreffe.fr.*
 
-## Installation 
-
-Project require __NodeJS >= 8__ and __Mongo__ or you can simply use __Docker__ with __Compose__.
-
 ## Getting started 
 
 First create the `.env`file inside the project root :
