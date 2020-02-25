@@ -5,8 +5,10 @@ const axios = require('axios')
 const jsdom = require('jsdom')
 const { JSDOM } = jsdom;
 
-const Service = require("../service/companyService")
+const companyService = require("../service/companyService")
 const Utils = require("../utils")
+
+const worker = require("../worker/index")
 
 const agent = new https.Agent({ rejectUnauthorized: false })
 
@@ -37,7 +39,7 @@ async function getSearchResultsByPage(url, page, city) {
             .querySelectorAll('.result-item')
             .forEach(async (resultItem) => {
                 const company = await Utils.extractInfoFromResultItem(resultItem)
-                console.log(`    extracting --> ${company.title} ${company.siren}`)
+                // console.log(`    found company ${company.title} ${company.siren}`)
                 companyList.push(company)
             })
         return companyList
@@ -52,7 +54,7 @@ async function getDataByCompanies(url, companies) {
         const companyData = companies.map(async (company) => {
             const response = await axios.get(url, { params: { siren: company.siren, webservice: 'dataInfogreffe' }, httpsAgent: agent })
             const data = response.data.chartData.data
-            console.log(`    getting data --> ${company.title} ${company.siren}`)
+            // console.log(`    getting data of ${company.title} ${company.siren}`)
             if (data && Array.isArray(data) && data.length > 0) {
                 company.data = {}
                 response.data.chartData.data.forEach(year => company.data[year.year] = year)
@@ -75,44 +77,41 @@ async function loadFromFile(path) {
     insertData(JSON.parse(data))
 }
 
-async function scrapDataByCity(searchUrl, dataUrl, city) {
-    let companies = []
-    let pageCount = 0
-    let index = 1
-    let delay = 500
-    let wait = 10000
-
+async function getPageCountByCity({ searchUrl, city }) {
     try {
-        pageCount = await getPageCount(searchUrl, city)
+        const pageCount = await getPageCount(searchUrl, city)
+        console.log("Found " + pageCount + " pages")
+        return pageCount
     } catch (error) {
-        console.error(error.message)
+        console.error(error)
         throw error
+    }    
+}
+
+async function scrapDataByCity(searchUrl, dataUrl, city) {
+    let jobs = []
+    const pageCount = await getPageCountByCity({ searchUrl, city })
+
+    for (let index = 1 ; index <= pageCount ; index++) {
+        const job = () => new Promise(async (resolve, reject) => {
+            try {
+                console.log(`=> Launching worker for page ${index}/${pageCount}`)
+                const inserts = await worker.useWorker("./src/worker/worker.js", { index, city, searchUrl, dataUrl })
+                await companyService.createCompanies(inserts)
+                resolve()
+            } catch (error) {
+                console.error(error)
+                reject(new Error(`Insert stopped : ${error.message}`))
+            }
+        })
+        jobs.push(job)
     }
-    for (; index < pageCount; index++) {
-        console.log(`=> Processing results on page ${index}/${pageCount}`)
-        try {
-            await Utils.sleep(delay)
-            const names = await getSearchResultsByPage(searchUrl, index, city)
-            await Utils.sleep(delay)
-            const data = await getDataByCompanies(dataUrl, names)
-            const inserts = Utils.filterCompaniesWithData(data)
-            await Service.createCompanies(inserts)
-            companies = [...companies, ...inserts]
-        } catch (error) {
-            console.error(error)
-            console.log(`=> Retry processing page ${index}/${pageCount}`)
-            console.log(`=> Waiting ${wait} before retry...`)
-            await sleep(wait)
-            wait *= 1.5
-            delay *= 1.5
-            index -= 1
-            continue
-        }
-    }
-    return companies
+    return jobs
 }
 
 module.exports = {
     loadFromFile,
-    scrapDataByCity
+    scrapDataByCity,
+    getSearchResultsByPage,
+    getDataByCompanies
 }

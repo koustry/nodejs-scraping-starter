@@ -21,12 +21,12 @@ async function getCompany(id) {
     }
 }
 
-async function createCompanies(companies) {
+async function createCompanies(companies) {    
     for (const company of companies) {
         try {
             const comp = new Company(company)
             const res = await comp.save()
-            console.log(`    inserting --> ${res.title} ${res.siren}`)
+            console.log(`inserting company ${res.title} ${res.siren}`)
         } catch (error) {
             console.error(error.message)
         }        

@@ -8,7 +8,7 @@ const companyService = require("../service/companyService")
 router.get("/", async (req, res, next) => {
     try {
         const results = await companyService.getCompanies(req.query)
-        return res.status(httpStatus.OK).send(results)
+        return res.status(httpStatus.OK).send({ count: results.length, companies })
     } catch (error) {
         console.error(error)
         return res.status(httpStatus.BAD_REQUEST).send({error: error.message})
