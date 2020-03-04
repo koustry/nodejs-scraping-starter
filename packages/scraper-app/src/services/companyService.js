@@ -1,4 +1,4 @@
-const Company = require('../model/companyModel')
+const Company = require('../entities/Company')
 
 
 async function getCompanies(params) {
@@ -21,7 +21,7 @@ async function getCompany(id) {
     }
 }
 
-async function createCompanies(companies) {    
+async function saveCompanies(companies) {    
     for (const company of companies) {
         try {
             const comp = new Company(company)
@@ -33,8 +33,22 @@ async function createCompanies(companies) {
     }
 }
 
+async function saveData(data, url) {
+    const siren = url.match(/[0-9]+/g)[0]
+
+    try {
+        const company = await Company.findOne({ siren: siren })
+        company.data = data
+        const comp = new Company(company)
+        await comp.save()
+    } catch (error) {
+        console.error(error.message)
+    }
+}
+
 module.exports = {
     getCompanies,
     getCompany,
-    createCompanies
+    saveCompanies,
+    saveData
 }

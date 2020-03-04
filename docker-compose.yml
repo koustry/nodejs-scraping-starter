@@ -4,19 +4,21 @@ services:
 
     server:
         build: .
-        env_file: .env
         ports: 
-            - ${APP_PORT}:${APP_PORT}
+            - 4000:4000
         volumes:
             - "./data:/app/data"
         depends_on: 
             - database
 
     database:
-        image: mongo:latest
-        env_file: .env
+        image: mongo:4.2.3
+        environment: 
+            - MONGO_INITDB_DATABASE=scraping
+            - MONGO_INITDB_ROOT_USERNAME=root
+            - MONGO_INITDB_ROOT_PASSWORD=root
         ports: 
-            - ${DB_PORT}:${DB_PORT}
+            - 27017:27017
         volumes: 
             - db-data:/data/db
 

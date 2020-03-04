@@ -1,21 +1,19 @@
 {
-  "name": "scrapping",
+  "name": "pple-scraper-as-api",
+  "workspaces": [
+    "packages/api-server",
+    "packages/scraper-app"
+  ],
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
+    "api-server": "yarn workspace api-server start",
+    "scraper-app": "yarn workspace scraper-app start",
+    "start": "concurrently --kill-others-on-fail \"yarn api-server\"  \"yarn scraper-app\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "axios": "^0.19.2",
-    "body-parser": "^1.19.0",
-    "dotenv": "^8.2.0",
-    "express": "^4.17.1",
-    "http-status-codes": "^1.4.0",
-    "jsdom": "^16.1.0",
-    "mongoose": "^5.8.11"
-  }
+  "author": "Kevin Oustry <oustrykevin@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "repository": "git@github.com:koustry/pple-scraper-api.git"
 }

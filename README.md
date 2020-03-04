@@ -1,4 +1,4 @@
-# PPLE SCRAPER API
+# PPLE SCRAPER AS API
 
 This project is a simple scraper of ["Portail de la Publicité Légale des Entreprises"](https://www.pple.fr) website.
 
