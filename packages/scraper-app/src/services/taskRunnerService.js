@@ -9,33 +9,33 @@ const scrapingService = require("./scrapingService")
 
 // TODO : refactor module in Class
 
-async function initialize() {
+async function initialize(department) {
     try {
-        const departments = await scrapingService.getDepartments()
-        let tasks = []
+        // const departments = await scrapingService.getDepartments()
+        // let tasks = []
     
-        departments.forEach(department => {
+        // departments.forEach(department => {
             const url = `${config.root_url}/${config.search_path}//${department}/`
             const dueDate = Date.now()
             const type = TaskType.DEPARTMENT
             const status = TaskStatus.TODO
             const task = new Task(url, dueDate, type, status)
-            tasks = [...tasks, task]
-        })
-        return tasks
+            // tasks = [...tasks, task]
+        // })
+        return task
     } catch (error) {
         throw error
     }
 }
 
 async function run(task) {
-    await utils.sleep(2000)
     return new Promise(async (resolve, reject) => {
         if (Date.now() < task.dueDate || task.status !== TaskStatus.TODO) {
             reject(task)
             return
         }
         try {
+            await utils.sleep(5000)
             const result = await scrapingService.exec({ url: task.url, taskType: task.type })
             const tasks = _generateNextTasks({ taskType: task.type, url: task.url, data: result })
             resolve(tasks)
@@ -48,8 +48,7 @@ async function run(task) {
                 reject(task)
                 return
             }
-            console.error("Error unknown, deleting task from queue")
-            console.error(error.message)
+            console.error("\t Error unknown, deleting task from queue", error.message)
             reject()
         }
     })

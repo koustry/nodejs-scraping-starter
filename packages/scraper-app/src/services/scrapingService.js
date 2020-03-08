@@ -57,6 +57,7 @@ async function _getPageCount(url) {
         const count = results.match(/[0-9]+/g).reduce((accumulator, currentValue) => accumulator + currentValue)
         const pageCount = Math.ceil(count / resultsByPage)
 
+        console.log("\t --> total urls: " + (pageCount + (pageCount * 10)));
         return pageCount
     } catch (error) {
         throw error
@@ -67,7 +68,6 @@ async function _getCompaniesInfo(url) {
     let companies = []
 
     try {
-        console.log("scraping url --> " + url)
         const response = await axios.get(url, options)
         const dom = new JSDOM(response.data)
         const items = dom.window.document.querySelectorAll('.result-item')
@@ -75,7 +75,6 @@ async function _getCompaniesInfo(url) {
         items.forEach(async (resultItem) => companies.push(_extractCompanyInfo(resultItem, url)))
         return companies
     } catch (error) {
-        console.log(error)
         throw error
     }
 }

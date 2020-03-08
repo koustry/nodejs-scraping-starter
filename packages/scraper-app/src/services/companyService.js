@@ -26,9 +26,10 @@ async function saveCompanies(companies) {
         try {
             const comp = new Company(company)
             const res = await comp.save()
-            console.log(`inserting company ${res.title} ${res.siren}`)
+            // console.log(`inserting company ${res.title} ${res.siren}`)
         } catch (error) {
-            console.error(error.message)
+            // console.error("\t --> error: " + error.message)
+            throw error
         }        
     }
 }

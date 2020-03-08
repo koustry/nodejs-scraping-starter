@@ -1,4 +1,5 @@
 "use strict";
+
 const utils = require("../utils")
 
 const Queue = require("../models/Queue")
@@ -14,13 +15,12 @@ class TaskPoolService {
         this._finished = null
     }
 
-    start(tasks) {
-        console.log("=======================> START RUNNER")
-        tasks.forEach(task => {
-            this._queue.enqueue(task)
-        })
-        console.log("queue size --> " + this._queue.getLength())
-        this._runTasks()
+    start(task) {
+        console.log("\t 🚀 START RUNNER")
+        this._queue.enqueue(task)
+        console.log("\t --> queue: " + this._queue.getLength())
+        console.log("\t --> slots: " + (this._max - this._waiting))
+        this._execTask()
     }
 
     end() {
@@ -29,31 +29,30 @@ class TaskPoolService {
         })
     }
 
-    async _runTasks() {
+    async _execTask() {
+        await utils.sleep(3000)
         if (this._waiting < this._max && this._queue.getLength()) {
             this._waiting++
             const task = this._queue.dequeue()
-            console.log("=======================> RUNNING TASK")
-            console.log("queue size --> " + this._queue.getLength())
-            console.log("slots --> " + (this._max - this._waiting))
-            console.log("task --> " + task.url)
             taskRunnerService.run(task)
-                .then(task => {
-                    if (task) this._queue.enqueue(...task)
+                .then(res => {
+                    if (res) this._queue.enqueue(...res)
+                    console.log("\t ✅ Task finished")
                 })
-                .catch(task => {
-                    if (task) this._queue.enqueue(task)
+                .catch(res => {
+                    if (res) this._queue.enqueue(res)
+                    console.log("\t ❌ Task failed")
                 })
                 .finally(() => {
                     this._waiting--
-                    console.log("=======================> FINISHED TASK")
-                    console.log("task --> " + task.url)
-                    console.log("queue size --> " + this._queue.getLength())
-                    console.log("slots --> " + (this._max - this._waiting))
-                    if (!this._waiting && !this._queue.getLength()) this._finished()
-                    this._runTasks()
+                    console.log("\t --> url: " + task.url)
+                    console.log("\t --> queue: " + this._queue.getLength())
+                    console.log("\t --> slots: " + (this._max - this._waiting))
+                    if (!this._waiting && !this._queue.getLength())
+                        this._finished()
+                    this._execTask()
                 })
-            this._runTasks()
+            this._execTask()
         }
     }
 
