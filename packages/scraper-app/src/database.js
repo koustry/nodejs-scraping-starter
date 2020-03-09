@@ -15,7 +15,6 @@ async function connectDatabase() {
   try {
     await mongoose.connect(uri, options)
   } catch (error) {
-    console.error("Error connect to DB:", error)
     throw error
   }
   mongoose.connection

@@ -1,9 +1,7 @@
-"use strict";
-
 const utils = require("../utils")
-
+const logger = require("../logger")
 const Queue = require("../models/Queue")
-const taskRunnerService = require("./taskRunnerService")
+const TaskRunnerService = require("./TaskRunnerService")
 
 
 class TaskPoolService {
@@ -13,13 +11,14 @@ class TaskPoolService {
         this._waiting = 0
         this._queue = new Queue()
         this._finished = null
+        this._taskRunner = new TaskRunnerService(3000)
     }
 
     start(task) {
-        console.log("\t 🚀 START RUNNER")
+        logger.info("Start runner 🚀")
         this._queue.enqueue(task)
-        console.log("\t --> queue: " + this._queue.getLength())
-        console.log("\t --> slots: " + (this._max - this._waiting))
+        logger.info("Queue size %i", this._queue.getLength())
+        logger.info("Slots %i", (this._max - this._waiting))
         this._execTask()
     }
 
@@ -34,20 +33,19 @@ class TaskPoolService {
         if (this._waiting < this._max && this._queue.getLength()) {
             this._waiting++
             const task = this._queue.dequeue()
-            taskRunnerService.run(task)
+            this._taskRunner.run(task)
                 .then(res => {
-                    if (res) this._queue.enqueue(...res)
-                    console.log("\t ✅ Task finished")
+                    if (res)
+                        this._queue.enqueue(...res)
                 })
                 .catch(res => {
-                    if (res) this._queue.enqueue(res)
-                    console.log("\t ❌ Task failed")
+                    if (res)
+                        this._queue.enqueue(res)
                 })
                 .finally(() => {
                     this._waiting--
-                    console.log("\t --> url: " + task.url)
-                    console.log("\t --> queue: " + this._queue.getLength())
-                    console.log("\t --> slots: " + (this._max - this._waiting))
+                    logger.info("✅ Task %s finished", task.url)
+                    logger.info("Queue size %i - slots %i", this._queue.getLength(), (this._max - this._waiting))
                     if (!this._waiting && !this._queue.getLength())
                         this._finished()
                     this._execTask()

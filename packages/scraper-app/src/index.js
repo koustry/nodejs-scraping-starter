@@ -1,24 +1,28 @@
 const dotenv =  require('dotenv')
 dotenv.config()
-const util = require('util')
-const fs = require('fs')
 
+const config = require("./config")
+const logger = require("./logger")
 const database = require("./database")
+const Task = require("./models/Task")
+const TaskType = require("./models/TaskType")
+const TaskStatus = require("./models/TaskStatus")
 const TaskPoolService = require("./services/TaskPoolService")
-const taskRunnerService = require("./services/taskRunnerService")
 const companyService = require("./services/companyService")
 
 
 async function startScraping(department, size) {
+    const url = `${config.root_url}/${config.search_path}//${department}/`
+    const dueDate = Date.now()
+    const type = TaskType.DEPARTMENT
+    const status = TaskStatus.TODO
+    const task = new Task(url, dueDate, type, status)
+    
     try {
-        const task = await taskRunnerService.initialize(department)
         const taskPoolService = new TaskPoolService(size)
-
-        // TODO: clean logs + count task / total urls 
         taskPoolService.start(task)
         await taskPoolService.end()
     } catch (error) {
-        console.error(error)
         throw error
     }
 }
@@ -48,18 +52,19 @@ async function main() {
             throw new Error("Bad arguments")
         if (process.argv[2] === "-h" || process.argv[2] === "--help")
             printHelp()
-        console.log("=> Init database")
-        await database.initialize()
-        console.log("=> Start scraping")
+        const department = process.argv[2]
+        const pool = process.argv[3]
+        logger.info('Starting server for department %s with %i', department, pool)
+        logger.info('Initializing database')
+        await database.initialize()        
+        logger.info('Start scraping service')
         await startScraping(process.argv[2], process.argv[3])
-        console.log("=> Finished scraping")
-        console.log("=> Counting results")
+        logger.info('Finished scraping')
         const result = await companyService.getCompanies()
-        console.log(util.inspect(result.length, false, null, true))
+        logger.info('Counting %i results in database', result.length)
         process.exit(0)
     } catch (error) {
-        console.error(`App crashed`)
-        console.error(error)
+        logger.error(error)
         process.exit(1)
     }
 }

@@ -5,9 +5,9 @@ const axios = require('axios')
 const jsdom = require('jsdom')
 const { JSDOM } = jsdom
 
+const logger =require("../logger")
 const TaskType = require("../models/TaskType")
 const companyService = require("./companyService")
-
 
 const agent = new https.Agent({ rejectUnauthorized: false })
 const headers = { 
@@ -57,7 +57,7 @@ async function _getPageCount(url) {
         const count = results.match(/[0-9]+/g).reduce((accumulator, currentValue) => accumulator + currentValue)
         const pageCount = Math.ceil(count / resultsByPage)
 
-        console.log("\t --> total urls: " + (pageCount + (pageCount * 10)));
+        logger.info("Total urls %i", (pageCount + (pageCount * 10)))
         return pageCount
     } catch (error) {
         throw error

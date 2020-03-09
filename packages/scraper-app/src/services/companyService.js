@@ -1,3 +1,4 @@
+const logger = require("../logger")
 const Company = require('../entities/Company')
 
 
@@ -6,7 +7,6 @@ async function getCompanies(params) {
         const res = await Company.find({})
         return res
     } catch (error) {
-        console.error(error.message)
         throw error
     }
 }
@@ -16,7 +16,6 @@ async function getCompany(id) {
         const res = await Company.findOne({ _id: id })
         return res
     } catch (error) {
-        console.error(error.message)
         throw error
     }
 }
@@ -26,10 +25,8 @@ async function saveCompanies(companies) {
         try {
             const comp = new Company(company)
             const res = await comp.save()
-            // console.log(`inserting company ${res.title} ${res.siren}`)
         } catch (error) {
-            // console.error("\t --> error: " + error.message)
-            throw error
+            logger.error(error.message)
         }        
     }
 }
@@ -43,7 +40,7 @@ async function saveData(data, url) {
         const comp = new Company(company)
         await comp.save()
     } catch (error) {
-        console.error(error.message)
+        logger.error(error.message)
     }
 }
 
