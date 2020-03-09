@@ -1,43 +1,24 @@
-# PPLE SCRAPER AS API
+# Simple NodeJS web scraper
 
-This project is a simple scraper of ["Portail de la Publicité Légale des Entreprises"](https://www.pple.fr) website.
+This project is a simple web scraper of ["Portail de la Publicité Légale des Entreprises"](https://www.pple.fr) website  written in `NodeJS`.
 
 *Le portail PPLE.fr s’appuie sur une licence R2B souscrite auprès de l’INSEE pour opérer la recherche d’entreprises à travers la base Sirene tenue à jour par l’INSEE.*
 
-*À partir des données de la base Sirene, PPLE propose une sélection d’entreprises en correspondance avec les bases de données partenaires d’Actulegales.fr, de Bodacc.fr et d’Infogreffe.fr.*
+## Installation
 
-## Getting started 
-
-First create the `.env`file inside the project root :
+Use the package manager `Yarn` to install the project.
+Required NodeJS version >= 10 and mongo DB >= 4.2.3
 
 ```bash
-cp .env.example .env
+yarn install 
 ```
 
-### Run with Docker 
+## Usage 
 
-Using __Docker Compose__ run the following commands inside the project root to start docker services :
-
-```bash
-docker-compose up --build -d
-docker-compose logs -f server
-```
-
-### Run with NodeJS
-
-Be sure to have a mongoDB deamon running or just start MongoDB Docker Service :
+Departments list are in the data dir. Pick up a __department__ and pass it as parameter with the __task pool size__ :
 
 ```bash
-docker-compose up database -d
-```
-
-Change in `.env` the following var to `MONGO_HOST=localhost`.
-
-Start server with `npm`:
-
-```bash
-npm install
-npm start
+yarn run scraper-app Department-Alpes-Maritimes 100
 ```
 
 ## Contributing
