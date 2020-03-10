@@ -1,6 +1,7 @@
-const config = require("../config")
 const utils = require("../utils")
+const config = require("../config")
 const logger = require("../logger")
+
 const Task = require("../models/Task")
 const TaskType = require("../models/TaskType")
 const TaskStatus = require("../models/TaskStatus")
